@@ -8,6 +8,22 @@
 #load data 
 antibiotics = read.csv(file="antibiotics.csv")
 
+#make a new column for x1 and fill with 0,1 values
+x1 = c(0)
+antibiotics$x1 = x1
+x1.1 = c(1)
+antibiotics[5:8,3] = x1.1
+x1.2= c(0)
+antibiotics[9:12,3] = x1.2
+x1.3 = c(1)
+antibiotics[13:16,3] =x1.3
+
+#make a new column for x2 and fill with 0,1 values
+x2 = c(0)
+antibiotics$x2 = x2
+x2.2 = c(1)
+antibiotics[9:16,4] = x2.2
+
 #plot the results using ggplot
 library(ggplot2)
 plot(antibiotics)
@@ -47,5 +63,18 @@ firstMod<-function(p,x,y){
 }
 
 
+# estimate parameters#where it starts/initial conditions
+#b0 20
+complexGuess=c(12,12,1)
+simpleGuess=c(12,1)
 
+fitComplex=optim(par=complexGuess,fn=complexMod,x=data$treat,y=data$monthsSurvived)
+fitSimple=optim(par=simpleGuess,fn=simpleMod,x=data$treat,y=data$monthsSurvived)
+
+# run likelihood ratio test
+teststat=2*(fitSimple$value-fitComplex$value)
+
+df=length(fitComplex$par)-length(fitSimple$par)
+
+1-pchisq(teststat,df)
 
