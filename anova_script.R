@@ -6,7 +6,15 @@
 #for Emily's computer: setwd("C:/Users/Vostro 3550/Desktop/Junior 18-19/Biocomputing/Biocomp_Folder/biocomputing_StatsGroupProject")
 
 #load data 
+data
 antibiotics = read.csv(file="antibiotics.csv")
+
+#plot the results using ggplot
+library(ggplot2)
+plotant = plot(antibiotics)
+png(paste("C:/Users/Vostro 3550/Desktop/Junior 18-19/Biocomputing/Biocomp_Folder/biocomputing_StatsGroupProject/Antibiotics Plot.png", sep = " "),   height = 768, width=1024)
+plotant
+dev.off()
 
 #make a new column for x1 and fill with 0,1 values
 x1 = c(0)
@@ -24,9 +32,6 @@ antibiotics$x2 = x2
 x2.2 = c(1)
 antibiotics[9:16,4] = x2.2
 
-#plot the results using ggplot
-library(ggplot2)
-plot(antibiotics)
 
 #create likelihood functions
 ThirdMod<-function(p,x1,x2,y){
