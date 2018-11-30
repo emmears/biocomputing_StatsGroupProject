@@ -6,7 +6,6 @@
 #for Emily's computer: setwd("C:/Users/Vostro 3550/Desktop/Junior 18-19/Biocomputing/Biocomp_Folder/biocomputing_StatsGroupProject")
 
 #load data 
-data
 antibiotics = read.csv(file="antibiotics.csv")
 
 #plot the results using ggplot
@@ -46,7 +45,7 @@ ThirdMod<-function(p,x1,x2,y){
   return(nll)
 }
 
-secondMod<-function(p,x1,y){
+secondMod<-function(p,x1,x2,y){
   B0=p[1]
   B1=p[2]
   sigma=exp(p[3])
@@ -57,7 +56,7 @@ secondMod<-function(p,x1,y){
   return(nll)
 }
 
-firstMod<-function(p,x,y){
+firstMod<-function(p,x1,x2,y){
   B0=p[1]
   sigma=exp(p[2])
   
@@ -68,13 +67,15 @@ firstMod<-function(p,x,y){
 }
 
 
-# estimate parameters#where it starts/initial conditions
+# estimate parameters- this is where it starts/initial conditions
 #b0 20
-complexGuess=c(12,12,1)
-simpleGuess=c(12,1)
+thirdGuess=c(20,-15,-2)
+secondGuess=c(20,-15)
+firstGuess = c(20)
 
-fitComplex=optim(par=complexGuess,fn=complexMod,x=data$treat,y=data$monthsSurvived)
-fitSimple=optim(par=simpleGuess,fn=simpleMod,x=data$treat,y=data$monthsSurvived)
+fitthird=optim(par=thirdGuess,fn=thirdMod,x=antibiotics$trt,y=antibiotics$growth)
+fitsecond=optim(par=secondGuess,fn=secondMod,x=antibiotics$trt,y=antibiotics$growth)
+fitfirst=optim(par=firstGuess,fn=firstMod,x=antibiotics$trt,y=antibiotics$growth)
 
 # run likelihood ratio test
 teststat=2*(fitSimple$value-fitComplex$value)
