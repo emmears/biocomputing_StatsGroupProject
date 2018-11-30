@@ -20,13 +20,29 @@ nllike = function(p,x,y) {
   return (nll)
 }
 
+nllike2 = function(p,x,y) {
+  B0 = p[1]
+  sigma = exp(p[2])
+  
+  expected = B0
+  
+  nll2 = -sum(x=y, mean = expected, sd = sigma, log = TRUE)
+  return(nll2)
+}
+
 initialGuess = c(1,1,1)
-fit = optim(par = initialGuess, fn = nllike, x=sugar$sugar, y=sugar$growth)
-print(fit)
+fit.complex = optim(par = initialGuess, fn = nllike, x=sugar$sugar, y=sugar$growth)
+print(fit.complex)
 
-teststat = fit$value
-df = length(fit$par)
+fit.simple = optim(par = initialGuess, fn = nllike2, x = sugar$sugar, y = sugar$growth)
+print(fit.simple)
 
-pt(teststat, df)
+teststat = 2*(fit.simple$value - fit.complex$value)
+df = length(fit.complex$par) - length(fit.simple$par)
+
+pchisq(teststat,df, lower=F)
+
+df
+ 
 
 
