@@ -80,9 +80,17 @@ fitsecond=optim(par=secondGuess,fn=SecondMod,x=antibiotics$trt,y=antibiotics$gro
 fitfirst=optim(par=firstGuess,fn=FirstMod,x=antibiotics$trt,y=antibiotics$growth)
 
 # run likelihood ratio test 
-teststat=2*(fitSimple$value-fitComplex$value)
+##for each relevant pairing, find statistical significance of the differences between the fit of the models
+#for first and second 
+teststat=2*(fitfirst$value-fitsecond$value)
 
-df=length(fitComplex$par)-length(fitSimple$par)
+df=length(fitsecond$par)-length(fitfirst$par)
 
 1-pchisq(teststat,df)
 
+#for second and third 
+teststat=2*(fitsecond$value-fitthird$value)
+
+df=length(fitthird$par)-length(fitsecond$par)
+
+1-pchisq(teststat,df)
