@@ -18,21 +18,20 @@ dev.off()
 #make a new column for x1 and fill with 0,1 values
 x1 = c(0)
 antibiotics$x1 = x1
-x1.1 = c(1)
-antibiotics[5:8,3] = x1.1
-x1.2= c(0)
-antibiotics[9:12,3] = x1.2
-x1.3 = c(1)
-antibiotics[13:16,3] =x1.3
+#then fill in the 0,1 values for each treatment 
+x1.1 = c(1) #create a vector of 1s for the 1 values
+antibiotics[5:8,3] = x1.1 #antibiotic treatment 1 is all 1 values, leaving control as 0s
+antibiotics[9:12,3] = x1 #antibiotic treatment 2 is all 0s (step not necessary because column is already 0s, but for conceptual purposes)
+antibiotics[13:16,3] =x1.1 #antibiotic treatment 3 is all 1 values
 
 #make a new column for x2 and fill with 0,1 values
-x2 = c(0)
-antibiotics$x2 = x2
-x2.2 = c(1)
-antibiotics[9:16,4] = x2.2
+antibiotics$x2 = x1 #sets the entire column as 0s 
+antibiotics[9:16,4] = x1.1 #antibiotic treatments 2 and 3 will be set as 1s, leaving control and antibiotic treatment 1 as 0s 
 
 
 #create likelihood functions
+
+#create the first, most complicated model 
 ThirdMod<-function(p,x1,x2,y){
   B0=p[1]
   B1=p[2]
@@ -45,7 +44,8 @@ ThirdMod<-function(p,x1,x2,y){
   return(nll)
 }
 
-secondMod<-function(p,x1,x2,y){
+#create the second, less complicated model 
+SecondMod<-function(p,x1,x2,y){
   B0=p[1]
   B1=p[2]
   sigma=exp(p[3])
@@ -56,7 +56,8 @@ secondMod<-function(p,x1,x2,y){
   return(nll)
 }
 
-firstMod<-function(p,x1,x2,y){
+#create the final, simplest model
+FirstMod<-function(p,x1,x2,y){
   B0=p[1]
   sigma=exp(p[2])
   
@@ -67,20 +68,29 @@ firstMod<-function(p,x1,x2,y){
 }
 
 
-# estimate parameters- this is where it starts/initial conditions
-#b0 20
-thirdGuess=c(20,-15,-2)
-secondGuess=c(20,-15)
-firstGuess = c(20)
+# estimate parameters for each model- this is where it starts/the initial conditions
+# these estimations are based on the averages shown from the plot generated above 
+thirdGuess=c(20,-15,-2) #estimations for most complicated ThirdMod
+secondGuess=c(20,-15) #estimations for less complicated SecondMod 
+firstGuess = c(20) #estimations for simplest FirstMod
 
-fitthird=optim(par=thirdGuess,fn=thirdMod,x=antibiotics$trt,y=antibiotics$growth)
-fitsecond=optim(par=secondGuess,fn=secondMod,x=antibiotics$trt,y=antibiotics$growth)
-fitfirst=optim(par=firstGuess,fn=firstMod,x=antibiotics$trt,y=antibiotics$growth)
+#fit for each model
+fitthird=optim(par=thirdGuess,fn=ThirdMod,x=antibiotics$trt,y=antibiotics$growth) 
+fitsecond=optim(par=secondGuess,fn=SecondMod,x=antibiotics$trt,y=antibiotics$growth)
+fitfirst=optim(par=firstGuess,fn=FirstMod,x=antibiotics$trt,y=antibiotics$growth)
 
-# run likelihood ratio test
-teststat=2*(fitSimple$value-fitComplex$value)
+# run likelihood ratio test 
+##for each relevant pairing, find statistical significance of the differences between the fit of the models
+#for first and second 
+teststat=2*(fitfirst$value-fitsecond$value)
 
-df=length(fitComplex$par)-length(fitSimple$par)
+df=length(fitsecond$par)-length(fitfirst$par)
 
 1-pchisq(teststat,df)
 
+#for second and third 
+teststat=2*(fitsecond$value-fitthird$value)
+
+df=length(fitthird$par)-length(fitsecond$par)
+
+1-pchisq(teststat,df)
