@@ -3,6 +3,7 @@ x = runif(24, min = 0, max = 50)
 sigmas = c(1,2,4,6,8,12,16,24)
 
 pval = c()
+pval2 = c()
 
 y = list()
 out = list(y)
@@ -52,6 +53,15 @@ nllike2 = function(p,x,y) {
   nll = -sum(dnorm(x=y, mean = expected, sd = sigma, log = TRUE))
   return(nll)
 }
+
+matrix8 = matrix(0,24,7)
+matrix8[4:6,1] = 1
+matrix8[7:9,2] = 1
+matrix8[10:12,3] = 1
+matrix8[13:15,4] = 1
+matrix8[16:18,5] = 1
+matrix8[19:21,6] = 1
+matrix8[22:24,7] = 1
 
 nllike_anova = function(p,x,y) {
   #assign parameters
@@ -105,17 +115,22 @@ for (j in sigmas) {
   for(i in 1:10) {
     error = rnorm(24,0,j)
     y[[i]]= 10 + .4*x + error
-    df1 = data.frame(x, y[[i]])
-    sort(df1,x)
     
-    matrix8 = matrix(0,24,7)
-    matrix8[4:6,1] = 1
-    matrix8[7:9,2] = 1
-    matrix8[10:12,3] = 1
-    matrix8[13:15,4] = 1
-    matrix8[16:18,5] = 1
-    matrix8[19:21,6] = 1
-    matrix8[22:24,7] = 1
+    initialGuess = c(1,1,1,1,1,1,1,1,1) #initial guess for 9 parameters
+    fit.complex = optim(par = initialGuess, fn = nllike_anova, x=x, y=y[[i]])
+  
+    initialGuess2 = c(1,1) #intial guess fro 2 parameters
+    fit.simple = optim(par = initialGuess2, fn = nllike2, x = x ,y = y[[i]])
+    
+    teststat = 2*(fit.simple$value - fit.complex$value) #compute test statistic for chi-squared test
+    df = length(fit.complex$par) - length(fit.simple$par) #compute degrees of freedom for chi-squared test
+    
+    pval2 = rbind(pval2, pchisq(teststat,df, lower=F))
+  }
+  out[[j]] = y
+  y = list()
+}
 
+pval2
   
 
