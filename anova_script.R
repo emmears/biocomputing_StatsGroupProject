@@ -20,46 +20,40 @@ x1 = c(0)
 antibiotics$x1 = x1
 #then fill in the 0,1 values for each treatment 
 x1.1 = c(1) #create a vector of 1s for the 1 values
-antibiotics[5:8,3] = x1.1 #antibiotic treatment 1 is all 1 values, leaving control as 0s
-antibiotics[9:12,3] = x1 #antibiotic treatment 2 is all 0s (step not necessary because column is already 0s, but for conceptual purposes)
-antibiotics[13:16,3] =x1.1 #antibiotic treatment 3 is all 1 values
+antibiotics[5:8,3] = x1.1 #antibiotic treatment 1 is all 1 values, leaving all else as 0s
 
 #make a new column for x2 and fill with 0,1 values
 antibiotics$x2 = x1 #sets the entire column as 0s 
-antibiotics[9:16,4] = x1.1 #antibiotic treatments 2 and 3 will be set as 1s, leaving control and antibiotic treatment 1 as 0s 
+antibiotics[9:12,4] = x1.1 #antibiotic treatment 2 is all 1s in column x2, leaving all else as 0s
 
+#make a new column for x3 and fill with 0,1 values
+antibiotics$x3 = x1 #sets the entire column as 0s 
+antibiotics[13:16,5] = x1.1 #antibiotic treatment 3 will be set as 1s, leaving all else as 0s
 
 #create likelihood functions
 
-#create the first, most complicated model 
-ThirdMod<-function(p,x1,x2,y){
+#create the most complicated model 
+FourthMod<-function(p,x,y){
   B0=p[1]
   B1=p[2]
   B2=p[3]
-  sigma=exp(p[4])
+  B3=p[4]
+  sigma=exp(p[5])
+  x1 = x$x1
+  x2 = x$x2 
+  x3 = x$x3
   
-  pred=B0+B1*x1+B2*x2
+  pred=B0+B1*x1+B2*x2+B3*x3
   nll=-sum(dnorm(x=y,mean=pred,sd=sigma,log=TRUE))
   
   return(nll)
 }
 
-#create the second, less complicated model 
-SecondMod<-function(p,x1,x2,y){
-  B0=p[1]
-  B1=p[2]
-  sigma=exp(p[3])
-  
-  pred=B0+B1*x1
-  nll=-sum(dnorm(x=y,mean=pred,sd=sigma,log=TRUE))
-  
-  return(nll)
-}
-
-#create the final, simplest model
-FirstMod<-function(p,x1,x2,y){
+#create the simplest model
+FirstMod<-function(p,x,y){
   B0=p[1]
   sigma=exp(p[2])
+  x1 = x
   
   pred=B0
   nll=-sum(dnorm(x=y,mean=pred,sd=sigma,log=TRUE))
@@ -70,27 +64,19 @@ FirstMod<-function(p,x1,x2,y){
 
 # estimate parameters for each model- this is where it starts/the initial conditions
 # these estimations are based on the averages shown from the plot generated above 
-thirdGuess=c(20,-15,-2) #estimations for most complicated ThirdMod
-secondGuess=c(20,-15) #estimations for less complicated SecondMod 
-firstGuess = c(20) #estimations for simplest FirstMod
+fourthGuess=c(20,-15,-2,8,1)#estimations for most complicated FourthMod
+firstGuess = c(20,1) #estimations for simplest FirstMod
 
-#fit for each model
-fitthird=optim(par=thirdGuess,fn=ThirdMod,x=antibiotics$trt,y=antibiotics$growth) 
-fitsecond=optim(par=secondGuess,fn=SecondMod,x=antibiotics$trt,y=antibiotics$growth)
-fitfirst=optim(par=firstGuess,fn=FirstMod,x=antibiotics$trt,y=antibiotics$growth)
+#create fit for each model
+fitfourth = optim(par=fourthGuess,fn=FourthMod,x = antibiotics[,3:5],y=antibiotics$growth)
+fitfirst=optim(par=firstGuess,fn=FirstMod,x = antibiotics$x1,y=antibiotics$growth)
 
-# run likelihood ratio test 
+# run likelihood ratio tests for most important models 
 ##for each relevant pairing, find statistical significance of the differences between the fit of the models
 #for first and second 
-teststat=2*(fitfirst$value-fitsecond$value)
+teststat1=2*(fitfirst$value-fitfourth$value) #determine test statistic value 
 
-df=length(fitsecond$par)-length(fitfirst$par)
+df1=length(fitfourth$par)-length(fitfirst$par) #determine degrees of freedom
 
-1-pchisq(teststat,df)
+1-pchisq(teststat1,df1) #chi square test for significance 
 
-#for second and third 
-teststat=2*(fitsecond$value-fitthird$value)
-
-df=length(fitthird$par)-length(fitsecond$par)
-
-1-pchisq(teststat,df)
