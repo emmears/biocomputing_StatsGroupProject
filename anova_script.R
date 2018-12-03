@@ -49,7 +49,7 @@ FourthMod<-function(p,x,y){
   return(nll)
 }
 
-#create the final, simplest model
+#create the simplest model
 FirstMod<-function(p,x,y){
   B0=p[1]
   sigma=exp(p[2])
@@ -67,16 +67,16 @@ FirstMod<-function(p,x,y){
 fourthGuess=c(20,-15,-2,8,1)#estimations for most complicated FourthMod
 firstGuess = c(20,1) #estimations for simplest FirstMod
 
-#fit for each model
+#create fit for each model
 fitfourth = optim(par=fourthGuess,fn=FourthMod,x = antibiotics[,3:5],y=antibiotics$growth)
 fitfirst=optim(par=firstGuess,fn=FirstMod,x = antibiotics$x1,y=antibiotics$growth)
 
 # run likelihood ratio tests for most important models 
 ##for each relevant pairing, find statistical significance of the differences between the fit of the models
 #for first and second 
-teststat1=2*(fitfirst$value-fitfourth$value)
+teststat1=2*(fitfirst$value-fitfourth$value) #determine test statistic value 
 
-df1=length(fitfourth$par)-length(fitfirst$par)
+df1=length(fitfourth$par)-length(fitfirst$par) #determine degrees of freedom
 
-1-pchisq(teststat1,df1)
+1-pchisq(teststat1,df1) #chi square test for significance 
 
