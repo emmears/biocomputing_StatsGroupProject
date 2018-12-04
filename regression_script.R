@@ -38,7 +38,7 @@ initialGuess = c(1,1,1) #initial guess for 3 parameters
 fit.complex = optim(par = initialGuess, fn = nllike, x=sugar$sugar, y=sugar$growth)
 print(fit.complex)
 
-initialGuess2 = c(1,1) #intial guess fro 2 parameters
+initialGuess2 = c(1,1) #intial guess for 2 parameters
 fit.simple = optim(par = initialGuess2, fn = nllike2, x = sugar$sugar, y = sugar$growth)
 print(fit.simple)
 
@@ -49,6 +49,6 @@ df
 
 pchisq(teststat,df, lower=F) #run a chi-squared test to determine likelihood
 
- 
+
 
 
