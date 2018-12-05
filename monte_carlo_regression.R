@@ -116,10 +116,10 @@ for (j in sigmas) {
     error = rnorm(24,0,j)
     y[[i]]= 10 + .4*x + error
     
-    initialGuess = c(1,1,1,1,1,1,1,1,1) #initial guess for 9 parameters
-    fit.complex = optim(par = initialGuess, fn = nllike_anova, x=x, y=y[[i]])
+    initialGuess = c(10,12,14,16,18,20,22,24,1) #initial guess for 9 parameters
+    fit.complex = optim(par = initialGuess, fn = nllike_anova, x=x, y=y[[i]], control = list(maxit=1e5))
   
-    initialGuess2 = c(1,1) #intial guess fro 2 parameters
+    initialGuess2 = c(1,1) #intial guess for 2 parameters
     fit.simple = optim(par = initialGuess2, fn = nllike2, x = x ,y = y[[i]])
     
     teststat = 2*(fit.simple$value - fit.complex$value) #compute test statistic for chi-squared test
@@ -148,5 +148,7 @@ sig_8_mean.a
 sig_12_mean.a
 sig_16_mean.a
 sig_24_mean.a
+
+
   
 
