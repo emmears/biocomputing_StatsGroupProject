@@ -34,15 +34,17 @@ antibiotics[13:16,5] = x1.1 #antibiotic treatment 3 will be set as 1s, leaving a
 
 #create the most complicated model 
 ComplexMod<-function(p,x,y){
+  #assign parameters
   B0=p[1]
   B1=p[2]
   B2=p[3]
   B3=p[4]
   sigma=exp(p[5])
+  #unpack 
   x1 = x$x1
   x2 = x$x2 
   x3 = x$x3
-  
+  #define linear equation 
   pred=B0+B1*x1+B2*x2+B3*x3
   nll=-sum(dnorm(x=y,mean=pred,sd=sigma,log=TRUE))
   
@@ -51,10 +53,12 @@ ComplexMod<-function(p,x,y){
 
 #create the simplest model
 NullMod<-function(p,x,y){
+  #assign parameters
   B0=p[1]
   sigma=exp(p[2])
+  #unpack 
   x1 = x
-  
+  #equation
   pred=B0
   nll=-sum(dnorm(x=y,mean=pred,sd=sigma,log=TRUE))
   
@@ -64,8 +68,8 @@ NullMod<-function(p,x,y){
 
 # estimate parameters for each model- this is where it starts/the initial conditions
 # these estimations are based on the averages shown from the plot generated above 
-ComplexGuess=c(20,-15,-2,8,1)#estimations for most complicated FourthMod
-NullGuess = c(20,1) #estimations for simplest FirstMod
+ComplexGuess=c(20,-15,-2,8,1)#estimations for most complicated ComplexMod
+NullGuess = c(20,1) #estimations for simplest SimpleMod
 
 #create fit for each model
 fitComplex = optim(par=ComplexGuess,fn=ComplexMod,x = antibiotics[,3:5],y=antibiotics$growth)
@@ -74,10 +78,10 @@ fitNull=optim(par=NullGuess,fn=NullMod,x = antibiotics$x1,y=antibiotics$growth)
 # run likelihood ratio tests 
 # find statistical significance of the differences between the fit of the models
 
-teststat1=2*(fitfirst$value-fitfourth$value) #determine test statistic value 
+teststat=2*(fitNull$value-fitComplex$value) #determine test statistic value 
 
-df1=length(fitfourth$par)-length(fitfirst$par) #determine degrees of freedom
+df=length(fitComplex$par)-length(fitNull$par) #determine degrees of freedom
 
-1-pchisq(teststat1,df1) #chi square test for significance 
+1-pchisq(teststat,df) #chi square test for significance 
 
 #p value that is given will show the degree of significance of the difference between the NullMod and the ComplexMod for the data
