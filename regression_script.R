@@ -8,6 +8,8 @@ sugar
 library(ggplot2)
 
 plot(sugar) #scatterplot of data points
+abline(lm(growth~sugar, data = sugar))
+
 
 nllike = function(p,x,y) {
   #assign parameters
@@ -47,7 +49,9 @@ df = length(fit.complex$par) - length(fit.simple$par) #compute degrees of freedo
 #check that degrees of freedom = 1
 df
 
-pchisq(teststat,df, lower=F) #run a chi-squared test to determine likelihood
+pchisq(teststat,df, lower=F) #run a chi-squared test to determine likelihood 
+#2.638878e-10
+
 
 
 
