@@ -10,10 +10,8 @@ antibiotics = read.csv(file="antibiotics.csv")
 
 #plot the results using ggplot
 library(ggplot2)
-plotant = plot(antibiotics)
-png(paste("C:/Users/Vostro 3550/Desktop/Junior 18-19/Biocomputing/Biocomp_Folder/biocomputing_StatsGroupProject/Antibiotics Plot.png", sep = " "),   height = 768, width=1024)
+plotant = plot(antibiotics,ylab="Bacterial Growth",xlab="Treatment Type")
 plotant
-dev.off()
 
 #make a new column for x1 and fill with 0,1 values
 x1 = c(0) #create a vector for 0s
