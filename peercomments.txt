@@ -1,3 +1,6 @@
 Line 99 had df = 4 when it should be df = 3
 
 teststat should be simple - complex , df are complex - simple
+
+Organization looks great! should be split into two different scripts though (1 for each question)
+
