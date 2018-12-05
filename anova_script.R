@@ -77,9 +77,10 @@ fitNull=optim(par=NullGuess,fn=NullMod,x = antibiotics$x1,y=antibiotics$growth)
 # find statistical significance of the differences between the fit of the models
 
 teststat=2*(fitNull$value-fitComplex$value) #determine test statistic value 
-
-df=length(fitComplex$par)-length(fitNull$par) #determine degrees of freedom
+teststat #37.90132
+df=length(fitComplex$par)-length(fitNull$par) #determine degrees of freedom 
+df #3
 
 1-pchisq(teststat,df) #chi square test for significance 
-
+#returns a value of 2.96576 E -08
 #p value that is given will show the degree of significance of the difference between the NullMod and the ComplexMod for the data
