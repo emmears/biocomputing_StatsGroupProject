@@ -13,7 +13,7 @@ rm(list=ls())
 ######create the models for regression, 2 Level ANOVA, 4 Level ANOVA, and 8 Level ANOVA #####
 
 #create the null model 
-NullModel = function(p,x,y) {
+NullMod = function(p,x,y) {
   #assign intercept parameter
   B0 = p[1]
   sigma = exp(p[2])
@@ -26,7 +26,7 @@ NullModel = function(p,x,y) {
 }
 
 #create the regression model 
-RegModel = function(p,x,y) {
+RegMod = function(p,x,y) {
   #assign parameters
   B0 = p[1]
   B1 = p[2]
@@ -128,4 +128,89 @@ ANOVAx8Mod = function(p,x,y) {
   nll = -sum(dnorm(x=y, mean = expected, sd = sigma, log = TRUE))
   return(nll)
 }
+
+
+######data simulation and for loops######
+#data simulation
+x = runif(24, min = 0, max = 50) #assigns 24 random values 0 to 50 along a uniform distribution to x
+
+pval.reg = c() #create empty vector to later hold the p values of the regression 
+pval.2A = c() #create another empty vector to later hold the p values of the 2 Level ANOVA
+pval.4A = c()  #create another empty vector to later hold the p values of the 4 Level ANOVA
+pval.8A =c() #create another empty vector to later hold the p values of the 8 Level ANOVA
+
+y = list() #assign an empty list to y
+out = list(y)#creates another list within this list named out
+
+sigmas = c(1,2,4,6,8,12,16,24) #assigns sigma values to evaluate in the for loop 
+
+#nested for loop 
+for (j in 1:length(sigmas)) {
+  for (i in 1:10) {
+    error = rnorm(24,0,j) #creates error for a normal distribution with our data 
+    y[[i]]= 10 + .4*x + error #linear equation of relationship between x and y 
+    
+    #guesses and fits for each model
+    initialGuess.null = c(1,1) #initial guess for the null model
+    fit.simple = optim(par = initialGuess.null, fn = NullMod, x = x ,y = y[[i]]) #optim fit for null model
+    
+    initialGuess.reg = c(1,1,1) #initial guess for 3 parameters for the regression
+    fit.complex.reg = optim(par = initialGuess.reg, fn = RegMod,x=x, y=y[[i]]) #optim fit for regression model
+    
+    initialGuess.A2 = c(1,1,1) #initial guess  for 2 Level ANOVA
+    fit.complex.A2 = optim(par = initialGuess.A2, fn = ANOVAx2Mod,x=x, y=y[[i]]) #optim fit for 2 Level ANOVA model
+    
+    initialGuess.A4 = c(1,1,1,1,1) #initial guess for 4 Level ANOVA
+    fit.complex.A4 = optim(par = initialGuess.A4, fn = ANOVAx4Mod, x=x, y=y[[i]]) #optim fit for 4 Level ANOVA model
+    
+    initialGuess.A8 = c(5,5,5,5,5,5,5,5,1) #initial guess for 8 Level ANOVA
+    fit.complex.A8 = optim(par = initialGuess.A8, fn = ANOVAx8Mod, x=x, y=y[[i]]) #optim fit for 8 Level ANOVA
+    
+    #test statistics and degrees of freedom for each model
+    teststat.reg = 2*(fit.simple$value - fit.complex.reg$value) #for regression model, compute test statistic for chi-squared test
+    df.reg = length(fit.complex.reg$par) - length(fit.simple$par) #for regression model, compute degrees of freedom for chi-squared test
+    
+    teststat.A2 = 2*(fit.simple$value - fit.complex.A2$value) #for 2L ANOVA, compute test statistic for chi-squared test
+    df.A2 = length(fit.complex.A2$par) - length(fit.simple$par) #for 2L ANOVA, compute degrees of freedom for chi-squared test
+    
+    teststat.A4 = 2*(fit.simple$value - fit.complex.A4$value) #for 4L ANOVA, compute test statistic for chi-squared test
+    df.A4 = length(fit.complex.A4$par) - length(fit.simple$par) #for 4L ANOVA, compute degrees of freedom for chi-squared test
+    
+    teststat.A8 = 2*(fit.simple$value - fit.complex.A8$value) #for 8L ANOVA, compute test statistic for chi-squared test
+    df.A8 = length(fit.complex.A8$par) - length(fit.simple$par) #for 8L ANOVA, compute degrees of freedom for chi-squared test
+    
+    #bind the test statistics and degrees of freedom for each model into their respective empty vectors 
+    pval.reg = rbind(pval.reg, pchisq(teststat.reg,df.reg, lower=F)) #for regression, bind the empty pval.reg vector and the chisquare results
+    pval.2A = rbind(pval.2A, pchisq(teststat.A2,df.A2, lower=F))
+    pval.4A = rbind(pval.4A, pchisq(teststat.A4,df.A4, lower=F))
+    pval2.8A = rbind(pval.8A, pchisq(teststat.A8,df.A8, lower=F))
+  }
+  out[[j]] = y
+  y = list()
+}
+
+#group the sigmas for calculating their means
+#for regressions
+sig_1_mean.reg = mean(pval.reg[1:10])
+sig_2_mean.reg = mean(pval.reg[11:20])
+sig_4_mean.reg = mean(pval.reg[21:30])
+sig_6_mean.reg = mean(pval.reg[31:40])
+sig_8_mean.reg = mean(pval.reg[41:50])
+sig_12_mean.reg = mean(pval.reg[51:60])
+sig_16_mean.reg = mean(pval.reg[61:70])
+sig_24_mean.reg = mean(pval.reg[71:80])
+#create a vector with all the regression sigma means
+Regression = c(sig_1_mean.reg,sig_2_mean.reg,sig_4_mean.reg,sig_6_mean.reg,sig_8_mean.reg,sig_12_mean.reg,sig_16_mean.reg,sig_24_mean.reg)
+
+#for 2 Level ANOVAs
+sig_1_mean.2A = mean(pval.2A[1:10])
+sig_2_mean.2A = mean(pval.2A[11:20])
+sig_4_mean.2A = mean(pval.2A[21:30])
+sig_6_mean.2A = mean(pval.2A[31:40])
+sig_8_mean.2A = mean(pval.2A[41:50])
+sig_12_mean.2A = mean(pval.2A[51:60])
+sig_16_mean.2A = mean(pval.2A[61:70])
+sig_24_mean.2A = mean(pval.2A[71:80])
+#create a vector with all the sigma means for the 2 Level ANOVA
+ANOVA2 = c(sig_1_mean.2A,sig_2_mean.2A,sig_4_mean.2A,sig_6_mean.2A,sig_8_mean.2A,sig_12_mean.2A,sig_16_mean.2A,sig_24_mean.2A)
 
