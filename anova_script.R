@@ -16,9 +16,9 @@ plotant
 dev.off()
 
 #make a new column for x1 and fill with 0,1 values
-x1 = c(0)
-antibiotics$x1 = x1
-#then fill in the 0,1 values for each treatment 
+x1 = c(0) #create a vector for 0s
+antibiotics$x1 = x1 #make the new x1 column and set as all 0s
+
 x1.1 = c(1) #create a vector of 1s for the 1 values
 antibiotics[5:8,3] = x1.1 #antibiotic treatment 1 is all 1 values, leaving all else as 0s
 
@@ -33,7 +33,7 @@ antibiotics[13:16,5] = x1.1 #antibiotic treatment 3 will be set as 1s, leaving a
 #create likelihood functions
 
 #create the most complicated model 
-FourthMod<-function(p,x,y){
+ComplexMod<-function(p,x,y){
   B0=p[1]
   B1=p[2]
   B2=p[3]
@@ -50,7 +50,7 @@ FourthMod<-function(p,x,y){
 }
 
 #create the simplest model
-FirstMod<-function(p,x,y){
+NullMod<-function(p,x,y){
   B0=p[1]
   sigma=exp(p[2])
   x1 = x
@@ -64,19 +64,20 @@ FirstMod<-function(p,x,y){
 
 # estimate parameters for each model- this is where it starts/the initial conditions
 # these estimations are based on the averages shown from the plot generated above 
-fourthGuess=c(20,-15,-2,8,1)#estimations for most complicated FourthMod
-firstGuess = c(20,1) #estimations for simplest FirstMod
+ComplexGuess=c(20,-15,-2,8,1)#estimations for most complicated FourthMod
+NullGuess = c(20,1) #estimations for simplest FirstMod
 
 #create fit for each model
-fitfourth = optim(par=fourthGuess,fn=FourthMod,x = antibiotics[,3:5],y=antibiotics$growth)
-fitfirst=optim(par=firstGuess,fn=FirstMod,x = antibiotics$x1,y=antibiotics$growth)
+fitComplex = optim(par=ComplexGuess,fn=ComplexMod,x = antibiotics[,3:5],y=antibiotics$growth)
+fitNull=optim(par=NullGuess,fn=NullMod,x = antibiotics$x1,y=antibiotics$growth)
 
-# run likelihood ratio tests for most important models 
-##for each relevant pairing, find statistical significance of the differences between the fit of the models
-#for first and second 
+# run likelihood ratio tests 
+# find statistical significance of the differences between the fit of the models
+
 teststat1=2*(fitfirst$value-fitfourth$value) #determine test statistic value 
 
 df1=length(fitfourth$par)-length(fitfirst$par) #determine degrees of freedom
 
 1-pchisq(teststat1,df1) #chi square test for significance 
 
+#p value that is given will show the degree of significance of the difference between the NullMod and the ComplexMod for the data
