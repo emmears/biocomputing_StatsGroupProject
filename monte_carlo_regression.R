@@ -131,6 +131,22 @@ for (j in sigmas) {
   y = list()
 }
 
-pval2
+sig_1_mean.a = mean(pval2[1:10])
+sig_2_mean.a = mean(pval2[11:20])
+sig_4_mean.a = mean(pval2[21:30])
+sig_6_mean.a = mean(pval2[31:40])
+sig_8_mean.a = mean(pval2[41:50])
+sig_12_mean.a = mean(pval2[51:60])
+sig_16_mean.a = mean(pval2[61:70])
+sig_24_mean.a = mean(pval2[71:80])
+
+sig_1_mean.a
+sig_2_mean.a
+sig_4_mean.a
+sig_6_mean.a
+sig_8_mean.a
+sig_12_mean.a
+sig_16_mean.a
+sig_24_mean.a
   
 
