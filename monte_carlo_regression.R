@@ -120,7 +120,7 @@ for (j in sigmas) {
     x=sort(x)
     
     initialGuess = c(1,2,3,4,5,6,7,8,9) #initial guess for 9 parameters
-    fit.complex = optim(par = initialGuess, fn = nllike_anova, x=x, y=y[[i]])
+    fit.complex = optim(par = initialGuess, fn = nllike_anova, x=x, y=y[[i]],  control = list(maxit=1e5))
   
     initialGuess2 = c(1,1) #intial guess for 2 parameters
     fit.simple = optim(par = initialGuess2, fn = nllike2, x=x ,y=y[[i]])
