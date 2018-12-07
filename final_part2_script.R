@@ -183,7 +183,7 @@ for (j in 1:length(sigmas)) {
     pval.reg = rbind(pval.reg, pchisq(teststat.reg,df.reg, lower=F)) #for regression, bind the empty pval.reg vector and the chisquare results
     pval.2A = rbind(pval.2A, pchisq(teststat.A2,df.A2, lower=F))
     pval.4A = rbind(pval.4A, pchisq(teststat.A4,df.A4, lower=F))
-    pval2.8A = rbind(pval.8A, pchisq(teststat.A8,df.A8, lower=F))
+    pval.8A = rbind(pval.8A, pchisq(teststat.A8,df.A8, lower=F))
   }
   out[[j]] = y
   y = list()
@@ -212,5 +212,30 @@ sig_12_mean.2A = mean(pval.2A[51:60])
 sig_16_mean.2A = mean(pval.2A[61:70])
 sig_24_mean.2A = mean(pval.2A[71:80])
 #create a vector with all the sigma means for the 2 Level ANOVA
-ANOVA2 = c(sig_1_mean.2A,sig_2_mean.2A,sig_4_mean.2A,sig_6_mean.2A,sig_8_mean.2A,sig_12_mean.2A,sig_16_mean.2A,sig_24_mean.2A)
+ANOVA2 = rbind(sig_1_mean.2A,sig_2_mean.2A,sig_4_mean.2A,sig_6_mean.2A,sig_8_mean.2A,sig_12_mean.2A,sig_16_mean.2A,sig_24_mean.2A)
 
+#for 4 Level ANOVAs
+sig_1_mean.4A = mean(pval.4A[1:10])
+sig_2_mean.4A = mean(pval.4A[11:20])
+sig_4_mean.4A = mean(pval.4A[21:30])
+sig_6_mean.4A = mean(pval.4A[31:40])
+sig_8_mean.4A = mean(pval.4A[41:50])
+sig_12_mean.4A = mean(pval.4A[51:60])
+sig_16_mean.4A = mean(pval.4A[61:70])
+sig_24_mean.4A = mean(pval.4A[71:80])
+#create a vector with all the sigma means for the 4 Level ANOVA
+ANOVA4 = rbind(sig_1_mean.4A,sig_2_mean.4A,sig_4_mean.4A,sig_6_mean.4A,sig_8_mean.4A,sig_12_mean.4A,sig_16_mean.4A,sig_24_mean.4A)
+
+#for 8 Level ANOVAs
+sig_1_mean.8A = mean(pval.8A[1:10])
+sig_2_mean.8A = mean(pval.8A[11:20])
+sig_4_mean.8A = mean(pval.8A[21:30])
+sig_6_mean.8A = mean(pval.8A[31:40])
+sig_8_mean.8A = mean(pval.8A[41:50])
+sig_12_mean.8A = mean(pval.8A[51:60])
+sig_16_mean.8A = mean(pval.8A[61:70])
+sig_24_mean.8A = mean(pval.8A[71:80])
+#create a vector with all the sigma means for the 8 Level ANOVA
+ANOVA8 = rbind(sig_1_mean.8A,sig_2_mean.8A,sig_4_mean.8A,sig_6_mean.8A,sig_8_mean.8A,sig_12_mean.8A,sig_16_mean.8A,sig_24_mean.8A)
+total = cbind(Regression, ANOVA2, ANOVA4, ANOVA8)
+total
