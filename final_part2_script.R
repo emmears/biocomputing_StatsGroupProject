@@ -140,7 +140,6 @@ pval.4A = c()  #create another empty vector to later hold the p values of the 4 
 pval.8A =c() #create another empty vector to later hold the p values of the 8 Level ANOVA
 
 y = list() #assign an empty list to y
-out = list(y)#creates another list within this list named out
 
 sigmas = c(1,2,4,6,8,12,16,24) #assigns sigma values to evaluate in the for loop 
 
@@ -149,7 +148,9 @@ for (j in 1:length(sigmas)) {
   for (i in 1:10) {
     error = rnorm(24,0,j) #creates error for a normal distribution with our data 
     y[[i]]= 10 + .4*x + error #linear equation of relationship between x and y 
-    
+   
+    x = sort(x)
+ 
     #guesses and fits for each model
     initialGuess.null = c(1,1) #initial guess for the null model
     fit.simple = optim(par = initialGuess.null, fn = NullMod, x = x ,y = y[[i]]) #optim fit for null model
@@ -164,7 +165,7 @@ for (j in 1:length(sigmas)) {
     fit.complex.A4 = optim(par = initialGuess.A4, fn = ANOVAx4Mod, x=x, y=y[[i]]) #optim fit for 4 Level ANOVA model
     
     initialGuess.A8 = c(5,5,5,5,5,5,5,5,1) #initial guess for 8 Level ANOVA
-    fit.complex.A8 = optim(par = initialGuess.A8, fn = ANOVAx8Mod, x=x, y=y[[i]]) #optim fit for 8 Level ANOVA
+    fit.complex.A8 = optim(par = initialGuess.A8, fn = ANOVAx8Mod, x=x, y=y[[i]], control = list(maxit=1e5)) #optim fit for 8 Level ANOVA
     
     #test statistics and degrees of freedom for each model
     teststat.reg = 2*(fit.simple$value - fit.complex.reg$value) #for regression model, compute test statistic for chi-squared test
@@ -185,7 +186,6 @@ for (j in 1:length(sigmas)) {
     pval.4A = rbind(pval.4A, pchisq(teststat.A4,df.A4, lower=F))
     pval.8A = rbind(pval.8A, pchisq(teststat.A8,df.A8, lower=F))
   }
-  out[[j]] = y
   y = list()
 }
 
@@ -247,3 +247,27 @@ pvalues.plot=ggplot(data = pvalues,aes(x=Sigmas,y=PValues))
 final.plot = a+geom_point(aes(color=types))+theme_classic()+xlab("Sigma Values")+ylab("Mean P Values")
 final.plot
 
+#for 4 Level ANOVAs
+sig_1_mean.4A = mean(pval.4A[1:10])
+sig_2_mean.4A = mean(pval.4A[11:20])
+sig_4_mean.4A = mean(pval.4A[21:30])
+sig_6_mean.4A = mean(pval.4A[31:40])
+sig_8_mean.4A = mean(pval.4A[41:50])
+sig_12_mean.4A = mean(pval.4A[51:60])
+sig_16_mean.4A = mean(pval.4A[61:70])
+sig_24_mean.4A = mean(pval.4A[71:80])
+#create a vector with all the sigma means for the 4 Level ANOVA
+ANOVA4 = c(sig_1_mean.4A,sig_2_mean.4A,sig_4_mean.4A,sig_6_mean.4A,sig_8_mean.4A,sig_12_mean.4A,sig_16_mean.4A,sig_24_mean.4A)
+
+
+#for 8 Level ANOVAs
+sig_1_mean.8A = mean(pval.8A[1:10])
+sig_2_mean.8A = mean(pval.8A[11:20])
+sig_4_mean.8A = mean(pval.8A[21:30])
+sig_6_mean.8A = mean(pval.8A[31:40])
+sig_8_mean.8A = mean(pval.8A[41:50])
+sig_12_mean.8A = mean(pval.8A[51:60])
+sig_16_mean.8A = mean(pval.8A[61:70])
+sig_24_mean.8A = mean(pval.8A[71:80])
+#create a vector with all the sigma means for the 8 Level ANOVA
+ANOVA8 = c(sig_1_mean.8A,sig_2_mean.8A,sig_4_mean.8A,sig_6_mean.8A,sig_8_mean.8A,sig_12_mean.8A,sig_16_mean.8A,sig_24_mean.8A)
