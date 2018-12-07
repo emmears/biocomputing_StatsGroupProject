@@ -271,3 +271,17 @@ sig_16_mean.8A = mean(pval.8A[61:70])
 sig_24_mean.8A = mean(pval.8A[71:80])
 #create a vector with all the sigma means for the 8 Level ANOVA
 ANOVA8 = c(sig_1_mean.8A,sig_2_mean.8A,sig_4_mean.8A,sig_6_mean.8A,sig_8_mean.8A,sig_12_mean.8A,sig_16_mean.8A,sig_24_mean.8A)
+
+#create a data frame of all of the sigma mean p values for each 
+types = c(rep("Regression",8),rep("ANOVA2",8),rep("ANOVA4",8),rep("ANOVA8",8)) #a vector that repeats each model type 8 times
+pvalues = as.data.frame(types) #create a dataframe with these names
+pvalues
+pvalues$PValues = c(Regression,ANOVA2,ANOVA4,ANOVA8) #add a column to match the p values
+pvalues$Sigmas = rep(c(1,2,4,6,8,12,16,24),4)
+pvalues
+
+#to visualize the mean pvalues for each sigma tested, colored scatter plot 
+pvalues.plot=ggplot(data = pvalues,aes(x=Sigmas,y=PValues))
+final.plot = final.plot+geom_point(aes(color=types))+theme_classic()+xlab("Sigma Values")+ylab("Mean P Values")
+final.plot
+ 
