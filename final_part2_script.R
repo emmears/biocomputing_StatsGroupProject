@@ -182,26 +182,27 @@ for (j in 1:length(sigmas)) {
     
     #bind the test statistics and degrees of freedom for each model into their respective empty vectors 
     pval.reg = rbind(pval.reg, pchisq(teststat.reg,df.reg, lower=F)) #for regression, bind the empty pval.reg vector and the chisquare results
-    pval.2A = rbind(pval.2A, pchisq(teststat.A2,df.A2, lower=F))
-    pval.4A = rbind(pval.4A, pchisq(teststat.A4,df.A4, lower=F))
-    pval.8A = rbind(pval.8A, pchisq(teststat.A8,df.A8, lower=F))
+    pval.2A = rbind(pval.2A, pchisq(teststat.A2,df.A2, lower=F)) #for 2Level ANOVA, bind the empty pval.2A vector and the chisquare results
+    pval.4A = rbind(pval.4A, pchisq(teststat.A4,df.A4, lower=F)) #for 4Level ANOVA, bind the empty pval.4A vector and the chisquare results
+    pval.8A = rbind(pval.8A, pchisq(teststat.A8,df.A8, lower=F)) #for 8Level ANOVA, bind the empty pval.8A vector and the chisquare results
   }
   y = list()
 }
 
-#group the sigmas for calculating their means
+####group the sigmas for calculating their means
 #for regressions
-sig_1_mean.reg = mean(pval.reg[1:10])
-sig_2_mean.reg = mean(pval.reg[11:20])
-sig_4_mean.reg = mean(pval.reg[21:30])
-sig_6_mean.reg = mean(pval.reg[31:40])
-sig_8_mean.reg = mean(pval.reg[41:50])
-sig_12_mean.reg = mean(pval.reg[51:60])
-sig_16_mean.reg = mean(pval.reg[61:70])
-sig_24_mean.reg = mean(pval.reg[71:80])
+sig_1_mean.reg = mean(pval.reg[1:10]) #mean of the first grouping of 10 pvalues
+sig_2_mean.reg = mean(pval.reg[11:20]) #mean of the second grouping of 10 pvalues
+sig_4_mean.reg = mean(pval.reg[21:30]) #mean of the third grouping of 10 pvalues
+sig_6_mean.reg = mean(pval.reg[31:40]) #mean of the fourth grouping of 10 pvalues
+sig_8_mean.reg = mean(pval.reg[41:50]) #mean of the fifth grouping of 10 pvalues
+sig_12_mean.reg = mean(pval.reg[51:60]) #mean of the sixth grouping of 10 pvalues
+sig_16_mean.reg = mean(pval.reg[61:70]) #mean of the seventh grouping of 10 pvalues
+sig_24_mean.reg = mean(pval.reg[71:80]) #mean of the eighth grouping of 10 pvalues
 #create a vector with all the regression sigma means
 Regression = c(sig_1_mean.reg,sig_2_mean.reg,sig_4_mean.reg,sig_6_mean.reg,sig_8_mean.reg,sig_12_mean.reg,sig_16_mean.reg,sig_24_mean.reg)
 
+##repeat for each of the ANOVAs
 #for 2 Level ANOVAs
 sig_1_mean.2A = mean(pval.2A[1:10])
 sig_2_mean.2A = mean(pval.2A[11:20])
@@ -237,18 +238,22 @@ sig_16_mean.8A = mean(pval.8A[61:70])
 sig_24_mean.8A = mean(pval.8A[71:80])
 #create a vector with all the sigma means for the 8 Level ANOVA
 ANOVA8 = rbind(sig_1_mean.8A,sig_2_mean.8A,sig_4_mean.8A,sig_6_mean.8A,sig_8_mean.8A,sig_12_mean.8A,sig_16_mean.8A,sig_24_mean.8A)
+
+
 #create a data frame of all of the sigma mean p values for each 
 types = c(rep("Regression",8),rep("ANOVA2",8),rep("ANOVA4",8),rep("ANOVA8",8)) #a vector that repeats each model type 8 times 
 pvalues = as.data.frame(types) #create a dataframe with these names 
 pvalues$PValues = c(Regression,ANOVA2,ANOVA4,ANOVA8) #add a column to match the p values 
-pvalues$Sigmas = rep(c(1,2,4,6,8,12,16,24),4)
-library(ggplot2)
+pvalues$Sigmas = rep(c(1,2,4,6,8,12,16,24),4) #then add a column for the sigma values
+
 
 #to visualize and compare the mean pvalues for each sigma tested, colored scatter plot 
-yscale = c(0,0.01,0.1,0.2,0.3,0.4,0.5)
-pvalues.plot=ggplot(data = pvalues,aes(x=Sigmas,y=PValues))
+library(ggplot2)
+yscale = c(0,0.01,0.1,0.2,0.3,0.4,0.5) #create a vector for the v axis values 
+pvalues.plot=ggplot(data = pvalues,aes(x=Sigmas,y=PValues)) #create base plot of Sigmas on x axis and PValues on the y axis
+#for the final plot, color the points by the grouping of Regression/ANOVA Type, change the x and y axis labels, and determine the scale of the x and y axis 
 final.plot = pvalues.plot+geom_point(aes(color=types))+theme_classic()+xlab("Sigma Values")+ylab("Mean P Values") + scale_x_continuous(breaks = sigmas) + scale_y_continuous(breaks=yscale)
-final.plot
+final.plot #the final plot for part 2
 
 
  
