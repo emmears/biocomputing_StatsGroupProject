@@ -15,19 +15,30 @@ for (j in sigmas) {
     error = rnorm(24,0,j) #creates error for a normal distribution with our data 
     y[[i]]= 10 + .4*x + error #linear equation of relationship between x and y 
     
-    initialGuess = c(1,1,1,1,1) #initial guess for 5 parameters
-    fit.complex = optim(par = initialGuess, fn = nllike, x=x, y=y[[i]])
+    initialGuess = c(1,1,1) #initial guess for 3 parameters
+    fit.complex = optim(par = initialGuess, fn = ANOVA2Model,x=x, y=y[[i]])
     
-    initialGuess2 = c(1,1,1) #intial guess for 3 parameters
-    fit.simple = optim(par = initialGuess2, fn = nllike2, x = x ,y = y[[i]])
+    initialGuess2 = c(1,1) #intial guess for 2 parameters
+    fit.simple = optim(par = initialGuess2, fn = NullModel, x = x ,y = y[[i]])
     
     teststat = 2*(fit.simple$value - fit.complex$value) #compute test statistic for chi-squared test
     df = length(fit.complex$par) - length(fit.simple$par) #compute degrees of freedom for chi-squared test
     
-    pval = rbind(pval, pchisq(teststat,df, lower=F)) #bind the empty pval vector and the chisquare results
+    pval2 = rbind(pval2, pchisq(teststat,df, lower=F)) #bind the empty pval vector and the chisquare results
   }
   out[[j]] = y
   y = list()
+}
+NullModel = function(p,x,y) {
+  #assign intercept parameter
+  B0 = p[1]
+  sigma = exp(p[2])
+  
+  #expected equation is just the intercept
+  expected = B0
+  
+  nll = -sum(dnorm(x=y, mean = expected, sd = sigma, log = TRUE))
+  return(nll)
 }
 
 #create matrix 
@@ -48,16 +59,48 @@ ANOVA2Model = function(p,x,y) {
   return (nll)
 }
 
-NullModel = function(p,x,y) {
-  #assign intercept parameter
-  B0 = p[1]
-  sigma = exp(p[2])
-  
-  #expected equation is just the intercept
-  expected = B0
-  
-  nll = -sum(dnorm(x=y, mean = expected, sd = sigma, log = TRUE))
-  return(nll)
+
+
+sig_1_mean2 = mean(pval2[1:10])
+sig_2_mean2 = mean(pval2[11:20])
+sig_4_mean2 = mean(pval2[21:30])
+sig_6_mean2 = mean(pval2[31:40])
+sig_8_mean2 = mean(pval2[41:50])
+sig_12_mean2 = mean(pval2[51:60])
+sig_16_mean2 = mean(pval2[61:70])
+sig_24_mean2 = mean(pval2[71:80])
+
+sig_1_mean2
+sig_2_mean2
+sig_4_mean2
+sig_6_mean2
+sig_8_mean2
+sig_12_mean2
+sig_16_mean2
+sig_24_mean2
+
+
+
+
+###################4 LEVEL ANOVA ###################
+for (j in sigmas) {
+  for (i in 1:10) {
+    error = rnorm(24,0,j) #creates error for a normal distribution with our data 
+    y[[i]]= 10 + .4*x + error #linear equation of relationship between x and y 
+    
+    initialGuess = c(1,1,1,1,1) #initial guess for 5 parameters
+    fit.complex = optim(par = initialGuess, fn = nllike, x=x, y=y[[i]])
+    
+    initialGuess2 = c(1,1) #intial guess for 3 parameters
+    fit.simple = optim(par = initialGuess2, fn = NullModel, x = x ,y = y[[i]])
+    
+    teststat = 2*(fit.simple$value - fit.complex$value) #compute test statistic for chi-squared test
+    df = length(fit.complex$par) - length(fit.simple$par) #compute degrees of freedom for chi-squared test
+    
+    pval = rbind(pval, pchisq(teststat,df, lower=F)) #bind the empty pval vector and the chisquare results
+  }
+  out[[j]] = y
+  y = list()
 }
 #create 4 level anova matrix
 matrix4 = matrix(0,24,3)
@@ -102,29 +145,6 @@ sig_8_mean
 sig_12_mean
 sig_16_mean
 sig_24_mean
-
-
-for (j in sigmas) {
-  for(i in 1:10) {
-    error = rnorm(24,0,j)
-    y[[i]]= 10 + .4*x + error
-    
-    initialGuess = c(1,1,1,1,1,1,1,1,1) #initial guess for 9 parameters
-    fit.complex = optim(par = initialGuess, fn = nllike_anova, x=x, y=y[[i]])
-    
-    initialGuess2 = c(1,1) #intial guess fro 2 parameters
-    fit.simple = optim(par = initialGuess2, fn = nllike2, x = x ,y = y[[i]])
-    
-    teststat = 2*(fit.simple$value - fit.complex$value) #compute test statistic for chi-squared test
-    df = length(fit.complex$par) - length(fit.simple$par) #compute degrees of freedom for chi-squared test
-    
-    pval2 = rbind(pval2, pchisq(teststat,df, lower=F))
-  }
-  out[[j]] = y
-  y = list()
-}
-
-pval2
 
 
 
